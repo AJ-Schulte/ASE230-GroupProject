@@ -22,14 +22,14 @@ $user = $_SESSION['user'] ?? null;
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Marketplace Exchange — Buy &amp; Sell Cards &amp; Collectibles</title>
+    <title>Collectable Peddlers — Buy &amp; Sell Cards &amp; Collectibles</title>
     <meta name="description" content="A lightweight PHP marketplace focused on trading cards, collectibles and niche goods.">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Marketplace Exchange</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
+            <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
             <nav>
                 <a href="/browse.php">Browse</a>
                 <a href="/sell.php">Sell</a>
@@ -110,22 +110,10 @@ $user = $_SESSION['user'] ?? null;
                     <?php endforeach; ?>
                 </div>
             </section>
-
-            <section class="features">
-                <h2>Core features</h2>
-                <div class="features-grid">
-                    <div class="feature"><strong>Registration &amp; Profiles</strong><p>Create accounts, manage listings, and view ratings.</p></div>
-                    <div class="feature"><strong>Listing Management</strong><p>Add items with details and server-side validation.</p></div>
-                    <div class="feature"><strong>Search &amp; Filters</strong><p>Server-rendered results for broad compatibility.</p></div>
-                    <div class="feature"><strong>Transactions</strong><p>Secure checkout and order history.</p></div>
-                    <div class="feature"><strong>Collections</strong><p>Save and manage favorite items.</p></div>
-                    <div class="feature"><strong>Admin Moderation</strong><p>Manage listings and users via admin panel.</p></div>
-                </div>
-            </section>
         </main>
 
         <footer>
-            <div>© <?=date('Y')?> Marketplace Exchange — Built with PHP</div>
+            <div>© <?=date('Y')?> Collectable Peddlers — Built with PHP</div>
         </footer>
     </div>
 </body>

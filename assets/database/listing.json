@@ -4,8 +4,8 @@
         "listingName": "john wanes guiytarr",
         "price": "500",
         "desc": "lorem ipsum dolor sit etat",
-        "tags": "suck",
-        "photoID": "xyz.png",
+        "tags": ["cool", "mine", "nah"],
+        "photos":["assets/database/photos/GuitarEx.png", "assets/database/photos/ExGuitar.png"],
         "sold":false,
         "deleted":false
     },

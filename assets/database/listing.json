@@ -1,1 +1,22 @@
-{}
+[
+    {
+        "listingID": "103",
+        "listingName": "john wanes guiytarr",
+        "price": "500",
+        "desc": "lorem ipsum dolor sit etat",
+        "tags": "suck",
+        "photoID": "xyz.png",
+        "sold":false,
+        "deleted":false
+    },
+    {
+        "listingID": "104",
+        "listingName": "jane",
+        "price": "60",
+        "desc": "lorem ipsum dolor sit etat",
+        "tags": "nok",
+        "photoID": "xaz.png",
+        "sold":false,
+        "deleted":false
+    }
+]

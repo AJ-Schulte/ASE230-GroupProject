@@ -15,7 +15,7 @@
         "price": "60",
         "desc": "lorem ipsum dolor sit etat",
         "tags": "nok",
-        "photoID": "xaz.png",
+        "photos":["assets/database/photos/GuitarEx.png", "assets/database/photos/ExGuitar.png"],
         "sold":false,
         "deleted":false
     }

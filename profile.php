@@ -61,6 +61,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        if (isset($_POST['action']) && $_POST['action'] === 'delete_account') {
+            unset($users[$foundIndex]);
+            $users = array_values($users); 
+            file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
+
+            session_unset();
+            session_destroy();
+
+            header('Location: ../ASE230-GroupProject/index.php');
+            exit;
+        }
         file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
     }
 }
@@ -119,6 +130,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="password" id="new_password" name="new_password" placeholder="Enter new password" required>
 
                     <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+            </div>
+
+             <div class="card danger" style="margin-top: 2rem;">
+                <h2>Delete Account</h2>
+                <p><strong>Warning:</strong> This action cannot be undone. All your account data will be permanently removed.</p>
+                <form method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                    <input type="hidden" name="action" value="delete_account">
+                    <button type="submit" class="btn btn-danger">Delete My Account</button>
                 </form>
             </div>
         </section>

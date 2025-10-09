@@ -37,7 +37,8 @@ $user = $_SESSION['user'] ?? null;
             </nav>
             <div class="auth">
                 <?php if ($user): ?>
-                    <span>Signed in as <strong><?=htmlspecialchars($user['username'])?></strong></span>
+                    <span>Signed in as <strong><?=htmlspecialchars($user)?></strong></span>
+                    <a class="btn btn-outline" href="../ASE230-GroupProject/cart.php">Cart</a>
                     <a class="btn btn-outline" href="../ASE230-GroupProject/profile.php">Profile</a>
                     <a class="btn btn-outline" href="../ASE230-GroupProject/assets/php/logout.php">Sign out</a>
                 <?php else: ?>

@@ -1,5 +1,6 @@
 <?php
-
+session_start();
+$user = $_SESSION['user'] ?? null;
 
 function format_price($cents) {
     return '$' . number_format($cents / 100, 2);
@@ -8,14 +9,9 @@ function truncate($text, $len = 120) {
     return mb_strlen($text) <= $len ? $text : mb_substr($text, 0, $len - 1) . '…';
 }
 
-$featured = [
-    ['id'=>101,'title'=>'Vintage Trading Card: Blue Dragon','price_cents'=>12500,'seller'=>'card_sam','image'=>'assets/images/placeholder-card.jpg','category'=>'Trading Cards','condition'=>'Near Mint','description'=>'Limited edition Blue Dragon card with near-mint corners and original sleeve.'],
-    ['id'=>102,'title'=>'Signed Collectible Poster — Retro Game','price_cents'=>4999,'seller'=>'retro_mike','image'=>'assets/images/placeholder-poster.jpg','category'=>'Collectibles','condition'=>'Good','description'=>'Autographed poster from a classic indie game developer.'],
-    ['id'=>103,'title'=>'Rare Promo Card — Set 3','price_cents'=>7500,'seller'=>'collector_zen','image'=>'assets/images/placeholder-card2.jpg','category'=>'Promo Cards','condition'=>'Excellent','description'=>'Hard-to-find promo card from set 3. Stored in protective case.']
-];
+$listingFile = __DIR__.'/assets/database/listing.json';
 
-session_start();
-$user = $_SESSION['user'] ?? null;
+$listings = json_decode(file_get_contents($listingFile), true) ?? [];
 ?>
 <!doctype html>
 <html lang="en">
@@ -67,47 +63,41 @@ $user = $_SESSION['user'] ?? null;
                         </div>
                     </form>
                 </div>
-                <aside>
-                    <div class="featured">
-                        <h3>Featured listings</h3>
-                        <?php foreach ($featured as $item): ?>
-                            <article class="featured-item">
-                                <div class="featured-thumb">
-                                    <img src="<?=htmlspecialchars($item['image'])?>" alt="<?=htmlspecialchars($item['title'])?>">
-                                </div>
-                                <div class="featured-info">
-                                    <div class="featured-title"><?=htmlspecialchars($item['title'])?></div>
-                                    <div class="meta"><?=htmlspecialchars($item['seller'])?> · <?=htmlspecialchars($item['condition'])?></div>
-                                </div>
-                                <div class="featured-price">
-                                    <div class="price"><?=format_price($item['price_cents'])?></div>
-                                    <a href="/item.php?id=<?=urlencode($item['id'])?>" class="btn btn-outline">View</a>
-                                </div>
-                            </article>
-                        <?php endforeach; ?>
-                    </div>
-                </aside>
             </section>
 
             <section class="explore">
                 <h2>Explore listings</h2>
                 <div class="grid">
-                    <?php foreach ($featured as $item): ?>
-                        <article class="card">
-                            <div class="thumb"><img src="<?=htmlspecialchars($item['image'])?>" alt="<?=htmlspecialchars($item['title'])?>"></div>
-                            <div>
-                                <div class="card-title"><?=htmlspecialchars($item['title'])?></div>
-                                <div class="meta"><?=htmlspecialchars($item['category'])?> • <?=htmlspecialchars($item['condition'])?></div>
-                                <p class="desc"><?=htmlspecialchars(truncate($item['description'], 140))?></p>
-                            </div>
-                            <div class="card-footer">
-                                <div class="price"><?=format_price($item['price_cents'])?></div>
-                                <div>
-                                    <a class="btn btn-outline" href="/item.php?id=<?=urlencode($item['id'])?>">Details</a>
-                                    <a class="btn btn-primary" href="/checkout.php?item=<?=urlencode($item['id'])?>">Buy</a>
+                    <?php foreach ($listings as $item): ?>
+                        <?php if (!$item['deleted'] && !$item['sold']): ?>
+                            <article class="card">
+                                <div class="thumb">
+                                    <img src="<?=htmlspecialchars($item['photos'][0])?>" 
+                                        alt="<?=htmlspecialchars($item['listingName'])?>">
                                 </div>
-                            </div>
-                        </article>
+                                <div>
+                                    <div class="card-title"><?=htmlspecialchars($item['listingName'])?></div>
+                                    <?php 
+                                    $tags = is_array($item['tags']) ? implode(', ', $item['tags']) : $item['tags']; 
+                                    ?>
+                                    <div class="meta"><?=htmlspecialchars($tags)?></div>
+                                    <p class="desc"><?=htmlspecialchars(truncate($item['desc'], 140))?></p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="price"><?=format_price($item['price'])?></div>
+                                    <div>
+                                        <a class="btn btn-outline" 
+                                        href="../ASE230-GroupProject/listingDetail.php?id=<?=urlencode($item['listingID'])?>">
+                                        Details
+                                        </a>
+                                        <a class="btn btn-primary" 
+                                        href="../ASE230-GroupProject/assets/php/addToCart.php?item=<?=urlencode($item['listingID'])?>">
+                                        Buy
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </section>

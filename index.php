@@ -1,6 +1,5 @@
 <?php
 
-
 function format_price($cents) {
     return '$' . number_format($cents / 100, 2);
 }
@@ -31,18 +30,19 @@ $user = $_SESSION['user'] ?? null;
         <header>
             <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
             <nav>
-                <a href="/browse.php">Browse</a>
-                <a href="/sell.php">Sell</a>
-                <a href="/collections.php">Collections</a>
+                <a href="../ASE230-GroupProject/search.php">Browse</a>
+                <a href="../ASE230-GroupProject/new_listing.php">Sell</a>
+                <a href="../ASE230-GroupProject/userDash.php">Collections</a>
             </nav>
             <div class="auth">
                 <?php if ($user): ?>
-                    <span>Signed in as <strong><?=htmlspecialchars($user['username'])?></strong></span>
-                    <a class="btn btn-outline" href="/account.php">Account</a>
-                    <a class="btn btn-outline" href="/logout.php">Sign out</a>
+                    <span>Signed in as <strong><?=htmlspecialchars($user)?></strong></span>
+                    <a class="btn btn-outline" href="../ASE230-GroupProject/cart.php">Cart</a>
+                    <a class="btn btn-outline" href="../ASE230-GroupProject/profile.php">Profile</a>
+                    <a class="btn btn-outline" href="../ASE230-GroupProject/assets/php/logout.php">Sign out</a>
                 <?php else: ?>
-                    <a class="btn btn-outline" href="/login.php">Log in</a>
-                    <a class="btn btn-primary" href="/register.php">Sign up</a>
+                    <a class="btn btn-outline" href="../ASE230-GroupProject/login.php">Log in</a>
+                    <a class="btn btn-primary" href="../ASE230-GroupProject/login.php?mode=signup">Sign up</a>
                 <?php endif; ?>
             </div>
         </header>

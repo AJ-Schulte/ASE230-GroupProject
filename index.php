@@ -32,7 +32,7 @@ $user = $_SESSION['user'] ?? null;
             <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
             <nav>
                 <a href="/browse.php">Browse</a>
-                <a href="/sell.php">Sell</a>
+                <a href="./new_listing.php">Sell</a>
                 <a href="/collections.php">Collections</a>
             </nav>
             <div class="auth">

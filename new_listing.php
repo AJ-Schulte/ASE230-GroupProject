@@ -1,21 +1,29 @@
 <?php
+    session_start();
     function CreateListing()
     {
-        $listing = new stdClass;
+        $listingFile = __DIR__.'/assets/database/listing.json';
+        $listings = json_decode(file_get_contents($listingFile), true);
 
-        $listing->name = "";
-        $listing->price = 0;
-        $listing->desc = "";
+        //find highest id for setting next id num
+        $maxId = 0;
+        foreach ($listings as $item) {
+            if (isset($item['listingID'])) {
+                $id = (int)$item['listingID'];
+                if ($id > $maxId) {
+                    $maxId = $id;
+                }
+            }
+        }
 
-        $filename = "assets/database/listing.json";
+        $name = trim($_POST["listName"]);
+        $price = trim($_POST["listPrice"]);
+        $desc = trim($_POST["listDesc"]);
+        $newId = $maxId + 1;
 
-        $listing->name = $_POST["listName"];
-        $listing->price = $_POST["listPrice"];
-        $listing->desc = $_POST["listDesc"];
+        $listings[] = ["listingID" => (string)$newId, "listingName" => $name, "price" => $price, "desc" => $desc, "tags" => [], "photos" => [], "sold" => false, "deleted" => false];
 
-        $listingWrite = json_encode($listing);
-
-        file_put_contents($filename, $listingWrite, FILE_APPEND);
+        file_put_contents($listingFile, json_encode($listings, JSON_PRETTY_PRINT));
     }
 ?>
 
@@ -31,7 +39,7 @@
         <a href="index.php">Return to home</a>
         <form method="POST">
             Listing Name: <input type="text" name="listName" required/><br>
-            Listing Price: $<input type="number" step="0.01" name="listPrice" required/> Dollars <br>
+            Listing Price: $<input type="number" step="0.01" name="listPrice" required/><br>
             Listing Description:<input type="textarea" name="listDesc" required/><br>
             <input type="submit"><?= CreateListing() ?></input>
         </form>

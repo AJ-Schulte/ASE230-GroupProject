@@ -24,6 +24,10 @@ foreach ($products as $item) {
             
     }
     //check if user is logged in
+
+    function format_price($cents) {
+    return '$' . number_format($cents / 100, 2);
+}
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +52,7 @@ foreach ($products as $item) {
     <header>
                 <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
                 <nav>
-                    <a href="../ASE230-GroupProject/search.php">Browse</a>
+                    <a href="../ASE230-GroupProject/index.php">Browse</a>
                     <a href="../ASE230-GroupProject/new_listing.php">Sell</a>
                     <a href="../ASE230-GroupProject/userDash.php">Collections</a>
                 </nav>
@@ -84,7 +88,7 @@ foreach ($products as $item) {
             </div>
 
             <h2><?= htmlspecialchars($product['listingName']) ?></h2>
-            <p class="price">$<?= number_format($product['price'], 2) ?></p>
+            <p class="price"><?= format_price($product['price'], 2) ?></p>
 
             <?php if ($product['sold']): ?>
                 <button class="buy-btn" disabled>Sold</button>

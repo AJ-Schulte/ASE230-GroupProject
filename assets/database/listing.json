@@ -4,19 +4,51 @@
         "listingName": "john wanes guiytarr",
         "price": "500",
         "desc": "lorem ipsum dolor sit etat",
-        "tags": ["cool", "mine", "nah"],
-        "photos":["assets/database/photos/GuitarEx.png", "assets/database/photos/ExGuitar.png"],
-        "sold":false,
-        "deleted":false
+        "tags": [
+            "cool",
+            "mine",
+            "nah"
+        ],
+        "photos": [
+            "assets\/database\/photos\/GuitarEx.png",
+            "assets\/database\/photos\/ExGuitar.png"
+        ],
+        "sold": false,
+        "deleted": false
     },
     {
         "id": "104",
         "listingName": "jane",
         "price": "60",
         "desc": "lorem ipsum dolor sit etat",
-        "tags": ["nok"],
-        "photos":["assets/database/photos/ExGuitar.png", "assets/database/photos/GuitarEx.png"],
-        "sold":false,
-        "deleted":false
+        "tags": [
+            "nok"
+        ],
+        "photos": [
+            "assets\/database\/photos\/ExGuitar.png",
+            "assets\/database\/photos\/GuitarEx.png"
+        ],
+        "sold": false,
+        "deleted": false
+    },
+    {
+        "listingID": "1",
+        "listingName": "",
+        "price": "",
+        "desc": "",
+        "tags": [],
+        "photos": [],
+        "sold": false,
+        "deleted": false
+    },
+    {
+        "listingID": "2",
+        "listingName": "abc",
+        "price": "500",
+        "desc": "lorem ipsum",
+        "tags": [],
+        "photos": [],
+        "sold": false,
+        "deleted": false
     }
 ]

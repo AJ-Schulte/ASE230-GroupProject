@@ -5,17 +5,15 @@ $user = $_SESSION['user'] ?? null;
 // Load and decode the JSON file
 $products = json_decode(file_get_contents('assets/database/listing.json'), true);
 
-
-
 // Get listing ID from the URL (default 103 if not provided)
-$id = isset($_GET['listingID']) ? intval($_GET['listingID']) : 103;
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Initialize product variable
 $product = null;
 
 // Search for matching listing
 foreach ($products as $item) {
-    if (intval($item['listingID']) === $id) {
+    if (intval($item['id']) === $id) {
         $product = $item;
         break;
     }

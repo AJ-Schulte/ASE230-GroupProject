@@ -1,6 +1,6 @@
 [
     {
-        "listingID": "103",
+        "id": "103",
         "listingName": "john wanes guiytarr",
         "price": "500",
         "desc": "lorem ipsum dolor sit etat",
@@ -10,12 +10,12 @@
         "deleted":false
     },
     {
-        "listingID": "104",
+        "id": "104",
         "listingName": "jane",
         "price": "60",
         "desc": "lorem ipsum dolor sit etat",
         "tags": ["nok"],
-        "photos":["assets/database/photos/GuitarEx.png", "assets/database/photos/ExGuitar.png"],
+        "photos":["assets/database/photos/ExGuitar.png", "assets/database/photos/GuitarEx.png"],
         "sold":false,
         "deleted":false
     }

@@ -87,11 +87,11 @@ $listings = json_decode(file_get_contents($listingFile), true) ?? [];
                                     <div class="price"><?=format_price($item['price'])?></div>
                                     <div>
                                         <a class="btn btn-outline" 
-                                        href="../ASE230-GroupProject/listingDetail.php?id=<?=urlencode($item['listingID'])?>">
+                                        href="../ASE230-GroupProject/listingDetail.php?id=<?=urlencode($item['id'])?>">
                                         Details
                                         </a>
                                         <a class="btn btn-primary" 
-                                        href="../ASE230-GroupProject/assets/php/addToCart.php?item=<?=urlencode($item['listingID'])?>">
+                                        href="../ASE230-GroupProject/assets/php/addToCart.php?item=<?=urlencode($item['id'])?>">
                                         Buy
                                         </a>
                                     </div>

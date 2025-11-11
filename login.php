@@ -1,62 +1,84 @@
 <?php
 session_start();
 
-$usersFile = __DIR__ . '/assets/database/user.json';
+// ============================
+// Database Connection (XAMPP)
+// ============================
+$host = 'localhost';
+$dbname = 'collectable_peddlers'; // change if needed
+$user = 'root';
+$pass = ''; // default for XAMPP is empty
 
-if (!file_exists($usersFile)) {
-    file_put_contents($usersFile, json_encode([]));
+$conn = new mysqli($host, $user, $pass, $dbname);
+
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
 }
 
-$users = json_decode(file_get_contents($usersFile), true) ?? [];
-
+// ============================
+// Main Logic
+// ============================
 $message = '';
-$mode = $_GET['mode'] ?? 'login'; 
+$mode = $_GET['mode'] ?? 'login';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode = $_POST['mode'];
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    if ($mode === 'signup') {
-        $exists = false;
-        foreach ($users as $u) {
-            if ($u['username'] === $username) {
-                $exists = true;
-                break;
+    if (empty($username) || empty($password)) {
+        $message = "Please enter both username and password.";
+    } else {
+        if ($mode === 'signup') {
+            // Check if username already exists
+            $stmt = $conn->prepare("SELECT user_id FROM User WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $message = "Username already exists. Please choose another.";
+            } else {
+                // Insert new user (plain password)
+                $stmt = $conn->prepare("INSERT INTO User (username, email, password) VALUES (?, ?, ?)");
+                $email = $username . "@example.com"; // placeholder email
+                $stmt->bind_param("sss", $username, $email, $password);
+
+                if ($stmt->execute()) {
+                    $_SESSION['user'] = $username;
+                    header("Location: index.php");
+                    exit;
+                } else {
+                    $message = "Error creating account. Please try again.";
+                }
             }
+            $stmt->close();
         }
 
-        if ($exists) {
-            $message = 'Username already exists. Please choose another.';
-        } else {
-            $users[] = ['username' => $username, 'password' => $password, 'collectionBought' => [], 'createdListings' => [], 'cart' => []];
-            file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
+        elseif ($mode === 'login') {
+            // Verify credentials
+            $stmt = $conn->prepare("SELECT user_id, password FROM User WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            $_SESSION['user'] = $username;
-
-            header('Location: index.php');
-            exit;
-        }
-    }
-
-    elseif ($mode === 'login') {
-        $found = false;
-        foreach ($users as $u) {
-            if ($u['username'] === $username && $u['password'] === $password) {
-                $found = true;
-                $_SESSION['user'] = $username;
-                break;
+            if ($result && $row = $result->fetch_assoc()) {
+                if ($password === $row['password']) {
+                    $_SESSION['user'] = $username;
+                    header("Location: index.php");
+                    exit;
+                } else {
+                    $message = "Invalid username or password.";
+                }
+            } else {
+                $message = "Invalid username or password.";
             }
-        }
-
-        if ($found) {
-            header('Location: index.php');
-            exit;
-        } else {
-            $message = 'Invalid username or password.';
+            $stmt->close();
         }
     }
 }
+
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">

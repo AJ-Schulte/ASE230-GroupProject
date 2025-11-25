@@ -125,7 +125,7 @@ $conn->close();
 <body>
 <div class="container">
     <header>
-        <a href="/" class="brand">
+        <a href="../ASE230-GroupProject" class="brand">
             <div class="logo">MX</div>
             <div>
                 <div class="brand-name">Collectable Peddlers</div>
@@ -146,6 +146,12 @@ $conn->close();
     <main>
         <section class="account">
             <h1>Account Settings</h1>
+
+            <?php if (!empty($_SESSION['is_admin'])): ?>
+                <a href="../ASE230-GroupProject/admin/admin.php" class="btn btn-primary" style="margin-bottom: 1rem; display: inline-block;">
+                    Go to Admin Panel
+                </a>
+            <?php endif; ?>
 
             <?php if ($message): ?>
                 <div class="alert"><?= htmlspecialchars($message) ?></div>

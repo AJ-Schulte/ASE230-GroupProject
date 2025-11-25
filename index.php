@@ -25,7 +25,7 @@ $listings = json_decode(file_get_contents($listingFile), true) ?? [];
 <body>
     <div class="container">
         <header>
-            <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
+            <a href="../ASE230-GroupProject" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
             <nav>
                 <a href="../ASE230-GroupProject/search.php">Browse</a>
                 <a href="../ASE230-GroupProject/new_listing.php">Sell</a>

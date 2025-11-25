@@ -5,11 +5,11 @@ session_start();
 // Database Connection (XAMPP)
 // ============================
 $host = 'localhost';
-$dbname = 'collectable_peddlers'; // change if needed
-$user = 'root';
-$pass = ''; // default for XAMPP is empty
+$dbname = 'collectable_peddlers';
+$dbuser = 'root';
+$dbpass = '';
 
-$conn = new mysqli($host, $user, $pass, $dbname);
+$conn = new mysqli($host, $dbuser, $dbpass, $dbname);
 
 if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
@@ -22,6 +22,7 @@ $message = '';
 $mode = $_GET['mode'] ?? 'login';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $mode = $_POST['mode'];
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
@@ -29,50 +30,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $message = "Please enter both username and password.";
     } else {
+
+        // ------------------------
+        // SIGNUP
+        // ------------------------
         if ($mode === 'signup') {
-            // Check if username already exists
+
             $stmt = $conn->prepare("SELECT user_id FROM User WHERE username = ?");
             $stmt->bind_param("s", $username);
             $stmt->execute();
             $stmt->store_result();
 
             if ($stmt->num_rows > 0) {
-                $message = "Username already exists. Please choose another.";
+                $message = "Username already exists.";
             } else {
-                // Insert new user (plain password)
-                $stmt = $conn->prepare("INSERT INTO User (username, email, password) VALUES (?, ?, ?)");
-                $email = $username . "@example.com"; // placeholder email
-                $stmt->bind_param("sss", $username, $email, $password);
+
+                // Create user
+                $email = $username . "@example.com";
+                $is_admin = 0;
+
+                $stmt = $conn->prepare("INSERT INTO User (username, email, password, is_admin) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("sssi", $username, $email, $password, $is_admin);
 
                 if ($stmt->execute()) {
-                    $_SESSION['user'] = $username;
+
+                    // Fetch new ID
+                    $new_id = $stmt->insert_id;
+
+                    // Set session
+                    $_SESSION['user_id'] = $new_id;
+                    $_SESSION['username'] = $username;
+                    $_SESSION['is_admin'] = 0;
+
                     header("Location: index.php");
                     exit;
                 } else {
-                    $message = "Error creating account. Please try again.";
+                    $message = "Error creating account.";
                 }
             }
             $stmt->close();
         }
 
-        elseif ($mode === 'login') {
-            // Verify credentials
-            $stmt = $conn->prepare("SELECT user_id, password FROM User WHERE username = ?");
+        // ------------------------
+        // LOGIN (user OR admin)
+        // ------------------------
+        else {
+
+            $stmt = $conn->prepare("SELECT user_id, username, password, is_admin FROM User WHERE username = ?");
             $stmt->bind_param("s", $username);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result && $row = $result->fetch_assoc()) {
+
                 if ($password === $row['password']) {
-                    $_SESSION['user'] = $username;
-                    header("Location: index.php");
-                    exit;
+
+                    // Store session data
+                    $_SESSION['user_id'] = $row['user_id'];
+                    $_SESSION['username'] = $row['username'];
+                    $_SESSION['is_admin'] = $row['is_admin'];
+
+                    // --- ADMIN LOGIN MODE ---
+                    if ($mode === 'admin') {
+
+                        if ($row['is_admin'] == 1) {
+                            header("Location: admin/admin.php");
+                            exit;
+                        } else {
+                            $message = "This account is not an admin.";
+                        }
+                    }
+
+                    // --- NORMAL USER LOGIN ---
+                    else {
+                        header("Location: index.php");
+                        exit;
+                    }
+
                 } else {
                     $message = "Invalid username or password.";
                 }
             } else {
                 $message = "Invalid username or password.";
             }
+
             $stmt->close();
         }
     }
@@ -90,7 +131,7 @@ $conn->close();
 <body>
     <div class="auth-container">
         <h1>Collectable Peddlers</h1>
-        <h2><?php echo ucfirst($mode); ?></h2>
+        <h2><?php echo ($mode === 'admin') ? "Admin Login" : ucfirst($mode); ?></h2>
 
         <?php if ($message): ?>
             <div class="message"><?php echo htmlspecialchars($message); ?></div>
@@ -105,13 +146,18 @@ $conn->close();
             <label for="password">Password:</label>
             <input type="password" name="password" required>
 
-            <button type="submit"><?php echo ucfirst($mode); ?></button>
+            <button type="submit"><?php echo ($mode === 'admin') ? "Login as Admin" : ucfirst($mode); ?></button>
         </form>
 
         <?php if ($mode === 'login'): ?>
             <p>Don't have an account? <a href="login.php?mode=signup">Sign up here</a></p>
-        <?php else: ?>
+            <p><strong><a href="login.php?mode=admin">Admin Login</a></strong></p>
+
+        <?php elseif ($mode === 'signup'): ?>
             <p>Already have an account? <a href="login.php?mode=login">Log in here</a></p>
+
+        <?php elseif ($mode === 'admin'): ?>
+            <p><a href="login.php?mode=login">Back to User Login</a></p>
         <?php endif; ?>
     </div>
 </body>

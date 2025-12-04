@@ -1,11 +1,13 @@
 <?php
-echo "hello";
 session_start();
+
+// Get listing ID
 $listingId = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
 // DB Connection
 $pdo = new PDO("mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4", "root", "");
 
-// Get all collections owned by this user
+// Get listing
 $listingStmt = $pdo->prepare("
     SELECT * FROM listing
     WHERE listing_id = ?
@@ -13,22 +15,19 @@ $listingStmt = $pdo->prepare("
 $listingStmt->execute([$listingId]);
 $listing = $listingStmt->fetch(PDO::FETCH_ASSOC);
 
-// Search for matching listing
-
-    //if it isnt found show error
-    if(!$listing){
-        echo "listing not found";
-            
-    }
-    foreach ($listing as $thing){
-        echo $thing + "";
-    }
-    //check if user is logged in
-
-    function format_price($cents) {
-    return '$' . number_format($cents / 100, 2);
+// If listing not found → stop
+if (!$listing) {
+    echo "Listing not found.";
+    exit;
 }
 
+// format_price now expects decimal directly
+function format_price($amount) {
+    return '$' . number_format($amount, 2);
+}
+
+// Handle user session
+$user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -59,37 +58,30 @@ $listing = $listingStmt->fetch(PDO::FETCH_ASSOC);
                 </nav>
 
                 <div class="auth">
-                    <?php if ($user): ?>
-                        <span>Signed in as <strong><?=htmlspecialchars($user['username'])?></strong></span>
-                        <a class="btn btn-outline" href="../ASE230-GroupProject/profile.php">Profile</a>
-                        <a class="btn btn-outline" href="../ASE230-GroupProject/assets/php/logout.php">Sign out</a>
-                    <?php else: ?>
-                        <a class="btn btn-outline" href="../ASE230-GroupProject/login.php">Log in</a>
-                        <a class="btn btn-primary" href="../ASE230-GroupProject/login.php?mode=signup">Sign up</a>
-                    <?php endif; ?>
-                </div>
-    <script>
-    // Swap main image when a thumbnail is clicked
-    function changeMainImage(src) {
-    document.getElementById('mainImage').src = src;
-}
-</script>
+            <?php if ($user): ?>
+                <span>Signed in as <strong><?= htmlspecialchars($user['username']) ?></strong></span>
+                <a class="btn btn-outline" href="profile.php">Profile</a>
+                <a class="btn btn-outline" href="assets/php/logout.php">Sign out</a>
+            <?php else: ?>
+                <a class="btn btn-outline" href="login.php">Log in</a>
+                <a class="btn btn-primary" href="login.php?mode=signup">Sign up</a>
+            <?php endif; ?>
+        </div>
     </header>
 
     <main>
-        <? $mainid = 0;?>
         <div class="listing">
-            <img id="mainImage" src="<?= htmlspecialchars($listing['photos'][0]) ?>" alt="Product image" class="main-image">
-            <div class="thumbnails">
-                <?php foreach ($listing['photos'] as $img): ?>
-                    <img src="<?= htmlspecialchars($img) ?>" 
-                    alt="Thumbnail" 
-                    onclick="changeMainImage('<?= htmlspecialchars($img) ?>')">
-                <?php endforeach; ?>
-            </div>
 
-            <h2><?= htmlspecialchars($listing['listingName']) ?></h2>
-            <p class="price"><?= format_price($listing['price'], 2) ?></p>
+            <!-- MAIN IMAGE -->
+            <img id="mainImage" 
+                 src="<?= htmlspecialchars('' . $listing['image_url']) ?>" 
+                 alt="Product image" 
+                 class="main-image">
+
+            <h2><?= htmlspecialchars($listing['title']) ?></h2>
+            <p><strong>Condition:</strong> <?= htmlspecialchars($listing['condition']) ?></p>
+
+            <p class="price"><?= format_price($listing['price']) ?></p>
 
             <?php if ($listing['sold_at']): ?>
                 <button class="buy-btn" disabled>Sold</button>
@@ -97,18 +89,11 @@ $listing = $listingStmt->fetch(PDO::FETCH_ASSOC);
                 <button class="buy-btn">Buy Now</button>
             <?php endif; ?>
 
-
-            <div class="tags">
-                <?php foreach ($listing['tags'] as $tag): ?>
-                    <span class="tag"><?= htmlspecialchars($tag) ?></span>
-                <?php endforeach; ?>
-            </div>
-
-            <p><?= htmlspecialchars($listing['desc']) ?></p>
-
+            <p><?= nl2br(htmlspecialchars($listing['description'])) ?></p>
 
         </div>
     </main>
 </div>
+
 </body>
 </html>

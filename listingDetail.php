@@ -1,33 +1,34 @@
 <?php
-
+echo "hello";
 session_start();
-$user = $_SESSION['user'] ?? null;
-// Load and decode the JSON file
-$products = json_decode(file_get_contents('assets/database/listing.json'), true);
+$listingId = isset($_GET['id']) ? intval($_GET['id']) : 0;
+// DB Connection
+$pdo = new PDO("mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4", "root", "");
 
-// Get listing ID from the URL (default 103 if not provided)
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-// Initialize product variable
-$product = null;
+// Get all collections owned by this user
+$listingStmt = $pdo->prepare("
+    SELECT * FROM listing
+    WHERE listing_id = ?
+");
+$listingStmt->execute([$listingId]);
+$listing = $listingStmt->fetch(PDO::FETCH_ASSOC);
 
 // Search for matching listing
-foreach ($products as $item) {
-    if (intval($item['id']) === $id) {
-        $product = $item;
-        break;
-    }
-}
+
     //if it isnt found show error
-    if(!$product){
-        echo "product not found";
+    if(!$listing){
+        echo "listing not found";
             
+    }
+    foreach ($listing as $thing){
+        echo $thing + "";
     }
     //check if user is logged in
 
     function format_price($cents) {
     return '$' . number_format($cents / 100, 2);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -36,10 +37,10 @@ foreach ($products as $item) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Page description here">
-    <title>ItemDetails or something</title>
+    <title>Itemtest or something</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        .product { max-width: 600px; margin: auto; text-align: center; }
+        .listing { max-width: 600px; margin: auto; text-align: center; }
         .main-image { width: 100%; max-width: 300px; border-radius: 10px; }
         .buy-btn { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
         .tags span { background: #eee; padding: 5px 10px; border-radius: 8px; margin: 2px; display: inline-block; }
@@ -77,20 +78,20 @@ foreach ($products as $item) {
 
     <main>
         <? $mainid = 0;?>
-        <div class="product">
-            <img id="mainImage" src="<?= htmlspecialchars($product['photos'][0]) ?>" alt="Product image" class="main-image">
+        <div class="listing">
+            <img id="mainImage" src="<?= htmlspecialchars($listing['photos'][0]) ?>" alt="Product image" class="main-image">
             <div class="thumbnails">
-                <?php foreach ($product['photos'] as $img): ?>
+                <?php foreach ($listing['photos'] as $img): ?>
                     <img src="<?= htmlspecialchars($img) ?>" 
                     alt="Thumbnail" 
                     onclick="changeMainImage('<?= htmlspecialchars($img) ?>')">
                 <?php endforeach; ?>
             </div>
 
-            <h2><?= htmlspecialchars($product['listingName']) ?></h2>
-            <p class="price"><?= format_price($product['price'], 2) ?></p>
+            <h2><?= htmlspecialchars($listing['listingName']) ?></h2>
+            <p class="price"><?= format_price($listing['price'], 2) ?></p>
 
-            <?php if ($product['sold']): ?>
+            <?php if ($listing['sold_at']): ?>
                 <button class="buy-btn" disabled>Sold</button>
             <?php else: ?>
                 <button class="buy-btn">Buy Now</button>
@@ -98,12 +99,12 @@ foreach ($products as $item) {
 
 
             <div class="tags">
-                <?php foreach ($product['tags'] as $tag): ?>
+                <?php foreach ($listing['tags'] as $tag): ?>
                     <span class="tag"><?= htmlspecialchars($tag) ?></span>
                 <?php endforeach; ?>
             </div>
 
-            <p><?= htmlspecialchars($product['desc']) ?></p>
+            <p><?= htmlspecialchars($listing['desc']) ?></p>
 
 
         </div>

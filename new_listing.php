@@ -1,47 +1,84 @@
 <?php
-    session_start();
-    function CreateListing()
-    {
-        $listingFile = __DIR__.'/assets/database/listing.json';
-        $listings = json_decode(file_get_contents($listingFile), true);
+session_start();
 
-        //find highest id for setting next id num
-        $maxId = 0;
-        foreach ($listings as $item) {
-            if (isset($item['listingID'])) {
-                $id = (int)$item['listingID'];
-                if ($id > $maxId) {
-                    $maxId = $id;
-                }
-            }
-        }
+// Require login
+if (!isset($_SESSION['user'])) {
+    die("You must be logged in to create a listing.");
+}
 
-        $name = trim($_POST["listName"]);
-        $price = trim($_POST["listPrice"]);
-        $desc = trim($_POST["listDesc"]);
-        $newId = $maxId + 1;
+$user = $_SESSION['user']; // contains user_id, username, etc.
 
-        $listings[] = ["listingID" => (string)$newId, "listingName" => $name, "price" => $price, "desc" => $desc, "tags" => [], "photos" => [], "sold" => false, "deleted" => false];
+// When form submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        file_put_contents($listingFile, json_encode($listings, JSON_PRETTY_PRINT));
-    }
+    // Collect form values
+    $title = trim($_POST['listName']);
+    $price = floatval($_POST['listPrice']);
+    $desc = trim($_POST['listDesc']);
+    $condition = trim($_POST['listCondition']);
+    $imageUrl = trim($_POST['imageUrl']);
+
+    // Connect to DB
+    $pdo = new PDO("mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4", "root", "");
+
+    // Insert query
+    $stmt = $pdo->prepare("
+        INSERT INTO listing (user_id, title, description, price, condition, image_url, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())
+    ");
+
+    $stmt->execute([
+        $user['user_id'],
+        $title,
+        $desc,
+        $price,
+        $condition,
+        $imageUrl
+    ]);
+
+    // Redirect to view the item
+    $newId = $pdo->lastInsertId();
+    header("Location: listing.php?id=" . $newId);
+    exit;
+}
 ?>
-
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>New Listing</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <title>Create New Listing</title>
+</head>
 
-    <body>
-        <h4>Create a New Listing</h4>
-        <a href="index.php">Return to home</a>
-        <form method="POST">
-            Listing Name: <input type="text" name="listName" required/><br>
-            Listing Price: $<input type="number" step="0.01" name="listPrice" required/><br>
-            Listing Description:<input type="textarea" name="listDesc" required/><br>
-            <input type="submit"><?= CreateListing() ?></input>
-        </form>
-    </body>
+<body>
+
+<h2>Create a New Listing</h2>
+<a href="index.php">Return to home</a>
+
+<form method="POST">
+
+    <label>Listing Name:</label><br>
+    <input type="text" name="listName" required><br><br>
+
+    <label>Listing Price:</label><br>
+    <input type="number" step="0.01" name="listPrice" required><br><br>
+
+    <label>Condition:</label><br>
+    <select name="listCondition" required>
+        <option value="New">New</option>
+        <option value="Like New">Like New</option>
+        <option value="Used">Used</option>
+    </select>
+    <br><br>
+
+    <label>Image URL:</label><br>
+    <input type="text" name="imageUrl" placeholder="images/item.jpg" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="listDesc" required></textarea><br><br>
+
+    <button type="submit">Create Listing</button>
+
+</form>
+
+</body>
 </html>

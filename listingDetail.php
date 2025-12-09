@@ -101,7 +101,10 @@ function format_price($amount) {
             <?php if ($listing['sold_at']): ?>
                 <button class="buy-btn" disabled>Sold</button>
             <?php else: ?>
-                <button class="buy-btn">Buy Now</button>
+                <a class="btn btn-primary buy-btn"
+                href="assets/php/addToCart.php?item=<?= $listing['listing_id'] ?>">
+                    Add to Cart
+                </a>
             <?php endif; ?>
 
             <p><?= nl2br(htmlspecialchars($listing['description'])) ?></p>
@@ -112,4 +115,3 @@ function format_price($amount) {
 </div>
 </body>
 </html>
-<?php

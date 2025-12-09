@@ -4,8 +4,8 @@
     $username = $_SESSION['username'] ?? null;
     $pdo = new PDO('mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4','root', '');
         $mainKey = $_POST['searchKey'];
-        if ($_GET['q'] != null && $mainKey == null)
-            $mainKey = $_GET['q'];
+        //if ($_GET['q'] != null && $mainKey == null)
+        //    $mainKey = $_GET['q'];
         
 
         if ($mainKey != null)

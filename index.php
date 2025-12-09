@@ -103,9 +103,9 @@ $conn->close();
                         <h1>A lightweight, PHP-first marketplace for collectors</h1>
                         <p>Search items, manage your collection, and trade securely.</p>
 
-                        <form class="search-box" method="get" action="search.php">
+                        <form class="search-box" method="post" action="search.php">
                             <div class="search-row">
-                                <input type="text" name="q" placeholder="Search cards, posters, collectibles...">
+                                <input type="text" name="searchKey" placeholder="Search cards, posters, collectibles...">
 
                                 <button type="submit">Search</button>
                             </div>

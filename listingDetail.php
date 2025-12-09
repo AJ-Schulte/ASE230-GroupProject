@@ -89,7 +89,7 @@ function format_price($amount) {
 
             <!-- MAIN IMAGE -->
             <img id="mainImage"
-                 src="<?= htmlspecialchars($listing['image_url']) ?>"
+                 src="<?= htmlspecialchars("assets/database/" . $listing['image_url'])?>"
                  alt="Product image"
                  class="main-image">
 

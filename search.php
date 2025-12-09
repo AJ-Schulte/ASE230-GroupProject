@@ -1,27 +1,38 @@
 <?php
     session_start();
     $user = $_SESSION['user'] ?? null;
-    //$db = new PDO('mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4','root', '');
-    $hasSearched = false;
-    function SearchListings()
-    {
+    $pdo = new PDO('mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4','root', '');
+    //function SearchListings()
+    //{
         $mainKey = $_POST['searchKey'];
 
-        for ($i=0;$i<1;$i++)
+        if ($mainKey != null)
         {
-            echo "name";
+            $stmt = $pdo->prepare("
+            SELECT * FROM listing
+            WHERE title LIKE '%$mainKey%'
+            ORDER BY created_at DESC
+            ");
+            $stmt->execute();
+            $listings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+    
+    /* Helper
+    function format_price($amount) {
+        return "$" . number_format($amount, 2);
     }
+       /* $stmt = $pdo->prepare("
+        SELECT * 
+        FROM listing
+        ");
+        //$stmt = $pdo->execute();
 
-    function pullSomethingFromDatabase()
-    {
-        //$stmt = $pdo->query('SELECT name FROM users');
-        /*while ($row = $stmt->fetch())
+        //var_dump($stmt);
+        /*for ($i=0;$i<1;$i++)
         {
-            echo $row['name'] . "\n";
+            echo $mainKey;
         }*/
-        
-    }
+    //}
 ?>
 
 <!DOCTYPE html>
@@ -59,12 +70,52 @@
 }
 </script>
     </header>
+        <div style="text-align: center;">
         <h4>Search</h4>
-        <a href="index.php">Return to home</a>
         <form method="POST">
             <input type="text" name="searchKey"></input>
-            <input type="submit"><?= pullSomethingFromDatabase() ?></input><br>
+            <input type="submit"></input><br>
         </form>
         <br>
+
+        <?php if ($listings == null):?> 
+            <?php if ($mainKey == null):?>
+                <h4>Start your search, and results will show up!</h4>
+            <?php else:?>
+                <h4>Results not found. Try another search!</h4>
+            <?php endif; ?>   
+        <?php else:?>
+            <h4>Results:</h4>
+
+            <div class="grid">
+                <?php foreach ($listings as $item): ?>
+                    <article class="card">
+                        <div class="thumb">
+                            <img src="<?=htmlspecialchars($item['image_url'])?>" 
+                                    alt="<?=htmlspecialchars($item['title'])?>">
+                        </div>
+
+                        <div class="card-title"><?=htmlspecialchars($item['title'])?></div>
+
+                        <p class="desc">
+                            <?= htmlspecialchars(mb_substr($item['description'], 0, 100)) ?>…
+                        </p>
+
+                        <div class="card-footer">
+                            <div class="price"><?= format_price($item['price']) ?></div>
+                            <a class="btn btn-outline" 
+                                href="listingDetail.php?id=<?=$item['listing_id']?>">
+                                View
+                            </a>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
     </body>
+
+        <footer>
+        <div>© <?=date('Y')?> Collectable Peddlers — Built with PHP</div>
+    </footer>
 </html>

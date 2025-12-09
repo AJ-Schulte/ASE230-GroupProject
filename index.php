@@ -107,15 +107,6 @@ $conn->close();
                             <div class="search-row">
                                 <input type="text" name="q" placeholder="Search cards, posters, collectibles...">
 
-                                <select name="category">
-                                    <option value="">All categories</option>
-                                    <?php foreach ($categories as $cat): ?>
-                                        <option value="<?= htmlspecialchars($cat) ?>">
-                                            <?= htmlspecialchars($cat) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-
                                 <button type="submit">Search</button>
                             </div>
                         </form>

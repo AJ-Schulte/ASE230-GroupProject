@@ -75,7 +75,7 @@
                 <?php foreach ($listings as $item): ?>
                     <article class="card">
                         <div class="thumb">
-                            <img src="<?=htmlspecialchars($item['image_url'])?>" 
+                            <img src="<?=htmlspecialchars("assets/database/" . $item['image_url'])?>" 
                                     alt="<?=htmlspecialchars($item['title'])?>">
                         </div>
 

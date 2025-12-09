@@ -77,8 +77,8 @@
     <div style="text-align: center;">
         <h4>Search</h4>
         <form method="POST">
-            <input type="text" name="searchKey"></input>
-            <input type="submit"></input><br>
+            <input type="text" name="searchKey" class="search-box"></input>
+            <input type="submit" class="btn btn-primary"></input><br>
         </form>
         <br>
 

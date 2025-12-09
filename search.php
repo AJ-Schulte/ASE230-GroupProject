@@ -1,6 +1,7 @@
 <?php
     session_start();
-    $user = $_SESSION['user'] ?? null;
+    $user = $_SESSION['user_id'] ?? null;
+    $username = $_SESSION['username'] ?? null;
     $pdo = new PDO('mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4','root', '');
     //function SearchListings()
     //{
@@ -15,9 +16,11 @@
             ");
             $stmt->execute();
             $listings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            var_dump($listings);
         }
     
-    /* Helper
+    /* Helper */
     function format_price($amount) {
         return "$" . number_format($amount, 2);
     }
@@ -55,7 +58,7 @@
 
                 <div class="auth">
                     <?php if ($user): ?>
-                        <span>Signed in as <strong><?=htmlspecialchars($user['username'])?></strong></span>
+                        <span>Signed in as <strong><?=htmlspecialchars($username)?></strong></span>
                         <a class="btn btn-outline" href="../ASE230-GroupProject/profile.php">Profile</a>
                         <a class="btn btn-outline" href="../ASE230-GroupProject/assets/php/logout.php">Sign out</a>
                     <?php else: ?>
@@ -63,14 +66,14 @@
                         <a class="btn btn-primary" href="../ASE230-GroupProject/login.php?mode=signup">Sign up</a>
                     <?php endif; ?>
                 </div>
-    <script>
-    // Swap main image when a thumbnail is clicked
-    function changeMainImage(src) {
-    document.getElementById('mainImage').src = src;
-}
-</script>
+        <script>
+            // Swap main image when a thumbnail is clicked
+            function changeMainImage(src) {
+                document.getElementById('mainImage').src = src;
+        }
+        </script>
     </header>
-        <div style="text-align: center;">
+    <div style="text-align: center;">
         <h4>Search</h4>
         <form method="POST">
             <input type="text" name="searchKey"></input>
@@ -78,15 +81,9 @@
         </form>
         <br>
 
-        <?php if ($listings == null):?> 
-            <?php if ($mainKey == null):?>
-                <h4>Start your search, and results will show up!</h4>
-            <?php else:?>
-                <h4>Results not found. Try another search!</h4>
-            <?php endif; ?>   
-        <?php else:?>
-            <h4>Results:</h4>
-
+        <?php if (empty($listings)):?> 
+            <h4>No results. Start your search!</h4>
+        <?php else: ?>
             <div class="grid">
                 <?php foreach ($listings as $item): ?>
                     <article class="card">
@@ -99,15 +96,13 @@
 
                         <p class="desc">
                             <?= htmlspecialchars(mb_substr($item['description'], 0, 100)) ?>…
-                        </p>
 
-                        <div class="card-footer">
                             <div class="price"><?= format_price($item['price']) ?></div>
                             <a class="btn btn-outline" 
                                 href="listingDetail.php?id=<?=$item['listing_id']?>">
                                 View
                             </a>
-                        </div>
+                        </p>
                     </article>
                 <?php endforeach; ?>
             </div>

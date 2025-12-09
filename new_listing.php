@@ -1,5 +1,7 @@
 <?php
     session_start();
+    $user = $_SESSION['user'] ?? null;
+    $db = new PDO('mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4','root', '');
     function CreateListing()
     {
         $listingFile = __DIR__.'/assets/database/listing.json';

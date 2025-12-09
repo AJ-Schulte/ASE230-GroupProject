@@ -1,17 +1,29 @@
 <?php
 session_start();
 
+// Build user object from login.php session values
+$user = null;
+if (isset($_SESSION['user_id'])) {
+    $user = [
+        'user_id' => $_SESSION['user_id'],
+        'username' => $_SESSION['username'],
+        'is_admin' => $_SESSION['is_admin']
+    ];
+}
+
 // Get listing ID
 $listingId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // DB Connection
-$pdo = new PDO("mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4", "root", "");
+$pdo = new PDO(
+    "mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4",
+    "root",
+    "",
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
 
 // Get listing
-$listingStmt = $pdo->prepare("
-    SELECT * FROM listing
-    WHERE listing_id = ?
-");
+$listingStmt = $pdo->prepare("SELECT * FROM listing WHERE listing_id = ?");
 $listingStmt->execute([$listingId]);
 $listing = $listingStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -21,13 +33,10 @@ if (!$listing) {
     exit;
 }
 
-// format_price now expects decimal directly
+// Format price
 function format_price($amount) {
     return '$' . number_format($amount, 2);
 }
-
-// Handle user session
-$user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -35,29 +44,35 @@ $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Page description here">
-    <title>Itemtest or something</title>
+    <meta name="description" content="Listing details for marketplace item">
+    <title><?= htmlspecialchars($listing['title']) ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .listing { max-width: 600px; margin: auto; text-align: center; }
         .main-image { width: 100%; max-width: 300px; border-radius: 10px; }
         .buy-btn { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
-        .tags span { background: #eee; padding: 5px 10px; border-radius: 8px; margin: 2px; display: inline-block; }
-        .thumbnails img { width: 60px; margin: 5px; cursor: pointer; border-radius: 6px; border: 2px solid #ddd; transition: border 0.2s; }
-        .thumbnails img:hover { border-color: #007bff; }
     </style>
 </head>
 <body>
 <div class="container">
-    <header>
-                <a href="/" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
-                <nav>
-                    <a href="../ASE230-GroupProject/index.php">Browse</a>
-                    <a href="../ASE230-GroupProject/new_listing.php">Sell</a>
-                    <a href="../ASE230-GroupProject/userDash.php">Collections</a>
-                </nav>
 
-                <div class="auth">
+    <header>
+        <a href="/" class="brand">
+            <div class="logo">MX</div>
+            <div>
+                <div class="brand-name">Collectable Peddlers</div>
+                <div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div>
+            </div>
+        </a>
+
+        <nav>
+            <a href="index.php">Browse</a>
+            <a href="new_listing.php">Sell</a>
+            <a href="userDash.php">Collections</a>
+        </nav>
+
+        <!-- AUTH UI -->
+        <div class="auth">
             <?php if ($user): ?>
                 <span>Signed in as <strong><?= htmlspecialchars($user['username']) ?></strong></span>
                 <a class="btn btn-outline" href="profile.php">Profile</a>
@@ -73,9 +88,9 @@ $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
         <div class="listing">
 
             <!-- MAIN IMAGE -->
-            <img id="mainImage" 
-                 src="<?= htmlspecialchars('' . $listing['image_url']) ?>" 
-                 alt="Product image" 
+            <img id="mainImage"
+                 src="<?= htmlspecialchars($listing['image_url']) ?>"
+                 alt="Product image"
                  class="main-image">
 
             <h2><?= htmlspecialchars($listing['title']) ?></h2>
@@ -93,7 +108,8 @@ $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
 
         </div>
     </main>
-</div>
 
+</div>
 </body>
 </html>
+<?php

@@ -1,12 +1,17 @@
 <?php
 session_start();
 
-// Require login
-if (!isset($_SESSION['user'])) {
+// Require login using the session variables from login.php
+if (!isset($_SESSION['user_id'])) {
     die("You must be logged in to create a listing.");
 }
 
-$user = $_SESSION['user']; // contains user_id, username, etc.
+// Build a $user array (optional, just for convenience)
+$user = [
+    'user_id' => $_SESSION['user_id'],
+    'username' => $_SESSION['username'],
+    'is_admin' => $_SESSION['is_admin']
+];
 
 // When form submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -19,27 +24,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $imageUrl = trim($_POST['imageUrl']);
 
     // Connect to DB
-    $pdo = new PDO("mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4", "root", "");
+    try {
+        $pdo = new PDO(
+            "mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4",
+            "root",
+            "",
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
 
-    // Insert query
-    $stmt = $pdo->prepare("
-        INSERT INTO listing (user_id, title, description, price, condition, image_url, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())
-    ");
+        // Insert query
+        $stmt = $pdo->prepare("
+            INSERT INTO listing (user_id, title, description, price, condition, image_url, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())
+        ");
 
-    $stmt->execute([
-        $user['user_id'],
-        $title,
-        $desc,
-        $price,
-        $condition,
-        $imageUrl
-    ]);
+        $stmt->execute([
+            $user['user_id'],
+            $title,
+            $desc,
+            $price,
+            $condition,
+            $imageUrl
+        ]);
 
-    // Redirect to view the item
-    $newId = $pdo->lastInsertId();
-    header("Location: listing.php?id=" . $newId);
-    exit;
+        // Redirect to view the item
+        $newId = $pdo->lastInsertId();
+        header("Location: listing.php?id=" . $newId);
+        exit;
+
+    } catch (PDOException $e) {
+        die("Database error: " . $e->getMessage());
+    }
 }
 ?>
 <!DOCTYPE html>

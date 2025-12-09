@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Insert query
         $stmt = $pdo->prepare("
-            INSERT INTO listing (user_id, title, description, price, condition, image_url, status, created_at)
+            INSERT INTO listing (user_id, title, description, price, `condition`, image_url, status, created_at)
             VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())
         ");
 

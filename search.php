@@ -6,6 +6,9 @@
     //function SearchListings()
     //{
         $mainKey = $_POST['searchKey'];
+        if ($_GET['q'] != null && $mainKey == null)
+            $mainKey = $_GET['q'];
+        
 
         if ($mainKey != null)
         {
@@ -16,8 +19,6 @@
             ");
             $stmt->execute();
             $listings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            var_dump($listings);
         }
     
     /* Helper */

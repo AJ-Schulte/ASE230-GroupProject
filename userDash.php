@@ -1,27 +1,40 @@
 <?php
 session_start();
 
+// Redirect if user is NOT logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
+// SESSION VARIABLES (consistent with login.php)
 $userId = $_SESSION['user_id'];
-$username = $_SESSION['username'] ?? "User";
+$username = $_SESSION['username'];
+$is_admin = $_SESSION['is_admin'] ?? 0;
 
-// DB Connection
-$pdo = new PDO("mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4", "root", "");
+// ------------------------
+// DATABASE CONNECTION
+// ------------------------
+$pdo = new PDO(
+    "mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4",
+    "root",
+    "",
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
 
-// Get all collections owned by this user
+// ------------------------
+// FETCH USER COLLECTIONS
+// ------------------------
 $collectionsStmt = $pdo->prepare("
-    SELECT * FROM collection 
+    SELECT *
+    FROM collection
     WHERE user_id = ?
     ORDER BY created_at DESC
 ");
 $collectionsStmt->execute([$userId]);
 $collections = $collectionsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Helper
+// Price Formatter
 function format_price($amount) {
     return "$" . number_format($amount, 2);
 }
@@ -35,31 +48,46 @@ function format_price($amount) {
     <title>Your Collections — Collectable Peddlers</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
+
 <body>
 <div class="container">
 
     <!-- HEADER -->
     <header>
-        <a href="../ASE230-GroupProject" class="brand"><div class="logo">MX</div><div><div class="brand-name">Collectable Peddlers</div><div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div></div></a>
+        <a href="index.php" class="brand">
+            <div class="logo">MX</div>
+            <div>
+                <div class="brand-name">Collectable Peddlers</div>
+                <div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div>
+            </div>
+        </a>
+
         <nav>
-            <a href="../ASE230-GroupProject/search.php">Browse</a>
-            <a href="../ASE230-GroupProject/new_listing.php">Sell</a>
-            <a href="../ASE230-GroupProject/userDash.php">Collections</a>
+            <a href="search.php">Browse</a>
+            <a href="new_listing.php">Sell</a>
+            <a href="userDash.php">Collections</a>
         </nav>
+
         <div class="auth">
-            <?php if ($user): ?>
-                <span>Signed in as <strong><?=htmlspecialchars($user)?></strong></span>
-                <a class="btn btn-outline" href="../ASE230-GroupProject/cart.php">Cart</a>
-                <a class="btn btn-outline" href="../ASE230-GroupProject/profile.php">Profile</a>
-                <a class="btn btn-outline" href="../ASE230-GroupProject/assets/php/logout.php">Sign out</a>
+            <?php if ($userId): ?>
+                <span>Signed in as <strong><?= htmlspecialchars($username) ?></strong></span>
+                <a class="btn btn-outline" href="cart.php">Cart</a>
+                <a class="btn btn-outline" href="profile.php">Profile</a>
+
+                <?php if ($is_admin == 1): ?>
+                    <a class="btn btn-primary" href="admin/admin.php">Admin Panel</a>
+                <?php endif; ?>
+
+                <a class="btn btn-outline" href="assets/php/logout.php">Sign out</a>
+
             <?php else: ?>
-                <a class="btn btn-outline" href="../ASE230-GroupProject/login.php">Log in</a>
-                <a class="btn btn-primary" href="../ASE230-GroupProject/login.php?mode=signup">Sign up</a>
+                <a class="btn btn-outline" href="login.php">Log in</a>
+                <a class="btn btn-primary" href="login.php?mode=signup">Sign up</a>
             <?php endif; ?>
         </div>
     </header>
 
-
+    <!-- MAIN -->
     <main>
         <h1>Your Collections</h1>
 
@@ -72,7 +100,7 @@ function format_price($amount) {
                 <h2><?= htmlspecialchars($collection['name']) ?></h2>
 
                 <?php
-                // Fetch listings in this collection
+                // Fetch listings in the collection
                 $listingsStmt = $pdo->prepare("
                     SELECT l.*
                     FROM listing l
@@ -85,16 +113,18 @@ function format_price($amount) {
 
                 <?php if (empty($listings)): ?>
                     <p class="muted">No items in this collection yet.</p>
+
                 <?php else: ?>
                     <div class="grid">
+
                         <?php foreach ($listings as $item): ?>
                             <article class="card">
                                 <div class="thumb">
-                                    <img src="<?=htmlspecialchars($item['image_url'])?>" 
-                                         alt="<?=htmlspecialchars($item['title'])?>">
+                                    <img src="<?= htmlspecialchars($item['image_url']) ?>"
+                                         alt="<?= htmlspecialchars($item['title']) ?>">
                                 </div>
 
-                                <div class="card-title"><?=htmlspecialchars($item['title'])?></div>
+                                <div class="card-title"><?= htmlspecialchars($item['title']) ?></div>
 
                                 <p class="desc">
                                     <?= htmlspecialchars(mb_substr($item['description'], 0, 100)) ?>…
@@ -102,23 +132,25 @@ function format_price($amount) {
 
                                 <div class="card-footer">
                                     <div class="price"><?= format_price($item['price']) ?></div>
-                                    <a class="btn btn-outline" 
-                                       href="listingDetail.php?id=<?=$item['listing_id']?>">
+                                    <a class="btn btn-outline"
+                                       href="listingDetail.php?id=<?= $item['listing_id'] ?>">
                                         View
                                     </a>
                                 </div>
                             </article>
                         <?php endforeach; ?>
+
                     </div>
                 <?php endif; ?>
+
             </section>
         <?php endforeach; ?>
+
     </main>
 
     <footer>
-        <div>© <?=date('Y')?> Collectable Peddlers — Built with PHP</div>
+        <div>© <?= date('Y') ?> Collectable Peddlers — Built with PHP</div>
     </footer>
-
 </div>
 </body>
 </html>

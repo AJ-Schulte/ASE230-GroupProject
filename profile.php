@@ -1,20 +1,25 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user'])) {
-    header('Location: /login.php');
+// ============================
+// SESSION CHECK
+// ============================
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
     exit;
 }
 
-$user = $_SESSION['user'];
+$user_id = $_SESSION['user_id'];
+$username = $_SESSION['username'];
+$is_admin = $_SESSION['is_admin'] ?? 0;
 
 // ============================
-// Database Connection
+// DATABASE CONNECTION
 // ============================
 $host = 'localhost';
 $dbname = 'collectable_peddlers';
 $dbuser = 'root';
-$dbpass = ''; // XAMPP default
+$dbpass = '';
 
 $conn = new mysqli($host, $dbuser, $dbpass, $dbname);
 if ($conn->connect_error) {
@@ -22,93 +27,91 @@ if ($conn->connect_error) {
 }
 
 // ============================
-// Load current user info
+// LOAD CURRENT USER INFO
 // ============================
-$stmt = $conn->prepare("SELECT user_id, username, name, phone_num, password FROM User WHERE username = ?");
-$stmt->bind_param("s", $user);
+$stmt = $conn->prepare("SELECT user_id, username, name, phone_num, password FROM User WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $currentUser = $result->fetch_assoc();
 $stmt->close();
 
 if (!$currentUser) {
-    die("⚠️ User not found in database.");
+    die("⚠️ User not found.");
 }
 
 $message = "";
 
 // ============================
-// Handle form submissions
+// HANDLE FORM ACTIONS
 // ============================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // ---- Update Username ----
+    // ---- CHANGE USERNAME ----
     if (!empty($_POST['new_username'])) {
+
         $newUsername = trim($_POST['new_username']);
 
-        $checkStmt = $conn->prepare("SELECT user_id FROM User WHERE username = ?");
-        $checkStmt->bind_param("s", $newUsername);
-        $checkStmt->execute();
-        $checkStmt->store_result();
+        // Check if taken
+        $check = $conn->prepare("SELECT user_id FROM User WHERE username = ?");
+        $check->bind_param("s", $newUsername);
+        $check->execute();
+        $check->store_result();
 
-        if ($checkStmt->num_rows > 0) {
+        if ($check->num_rows > 0) {
             $message = "⚠️ Username already taken.";
         } else {
-            $updateStmt = $conn->prepare("UPDATE User SET username = ? WHERE user_id = ?");
-            $updateStmt->bind_param("si", $newUsername, $currentUser['user_id']);
-            $updateStmt->execute();
-            $updateStmt->close();
+            $update = $conn->prepare("UPDATE User SET username = ? WHERE user_id = ?");
+            $update->bind_param("si", $newUsername, $user_id);
+            $update->execute();
+            $update->close();
 
-            $_SESSION['user'] = $newUsername;
-            $user = $newUsername;
-            $message = "✅ Username updated successfully.";
+            // Update session
+            $_SESSION['username'] = $newUsername;
+            $username = $newUsername;
+
+            $message = "✅ Username updated.";
         }
-        $checkStmt->close();
+        $check->close();
     }
 
-    // ---- Update Password ----
+    // ---- CHANGE PASSWORD ----
     if (!empty($_POST['old_password']) && !empty($_POST['new_password'])) {
-        $oldPass = trim($_POST['old_password']);
-        $newPass = trim($_POST['new_password']);
 
-        if ($oldPass === $currentUser['password']) {
-            $updateStmt = $conn->prepare("UPDATE User SET password = ? WHERE user_id = ?");
-            $updateStmt->bind_param("si", $newPass, $currentUser['user_id']);
-            $updateStmt->execute();
-            $updateStmt->close();
-            $message = "✅ Password changed successfully.";
+        if ($_POST['old_password'] === $currentUser['password']) {
+            $newPass = trim($_POST['new_password']);
+            $update = $conn->prepare("UPDATE User SET password = ? WHERE user_id = ?");
+            $update->bind_param("si", $newPass, $user_id);
+            $update->execute();
+            $update->close();
+            $message = "✅ Password updated.";
         } else {
             $message = "❌ Incorrect old password.";
         }
     }
 
-    // ---- Update Name & Phone ----
+    // ---- UPDATE NAME & PHONE ----
     if (isset($_POST['name']) || isset($_POST['phone'])) {
+
         $name = trim($_POST['name']);
         $phone = trim($_POST['phone']);
 
-        // Handle nulls
-        $name = $name === "" ? null : $name;
-        $phone = $phone === "" ? null : $phone;
-
-        // Validate phone format if entered
-        if ($phone !== null && !preg_match('/^\d{3}-\d{3}-\d{4}$/', $phone)) {
-            $message = "❌ Invalid phone format. Use 111-111-1111.";
+        if ($phone !== "" && !preg_match('/^\d{3}-\d{3}-\d{4}$/', $phone)) {
+            $message = "❌ Invalid phone number format.";
         } else {
-            $updateStmt = $conn->prepare("UPDATE User SET name = ?, phone_num = ? WHERE user_id = ?");
-            $updateStmt->bind_param("ssi", $name, $phone, $currentUser['user_id']);
-            $updateStmt->execute();
-            $updateStmt->close();
-            $message = "✅ Profile details updated successfully.";
+            $update = $conn->prepare("UPDATE User SET name = ?, phone_num = ? WHERE user_id = ?");
+            $update->bind_param("ssi", $name, $phone, $user_id);
+            $update->execute();
+            $update->close();
+            $message = "✅ Profile updated.";
         }
     }
 
-    // Refresh user info after changes
-    $stmt = $conn->prepare("SELECT user_id, username, name, phone_num, password FROM User WHERE username = ?");
-    $stmt->bind_param("s", $user);
+    // Refresh data after changes
+    $stmt = $conn->prepare("SELECT user_id, username, name, phone_num, password FROM User WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $currentUser = $result->fetch_assoc();
+    $currentUser = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
 

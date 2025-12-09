@@ -21,8 +21,6 @@ $dbConfig = [
     'port' => 3306,
 ];
 
-$ADMIN_USERNAMES = ['aj_schulte']; // change / extend or implement is_admin column
-
 // ---------------- DB CONNECT ----------------
 $mysqli = new mysqli($dbConfig['host'], $dbConfig['user'], $dbConfig['pass'], $dbConfig['db'], $dbConfig['port']);
 if ($mysqli->connect_errno) {
@@ -32,12 +30,38 @@ if ($mysqli->connect_errno) {
 }
 $mysqli->set_charset('utf8mb4');
 
-// ---------------- AUTH ----------------
-$currentUser = $_SESSION['user'] ?? null;
-if (!in_array($currentUser, $ADMIN_USERNAMES, true)) {
-    http_response_code(403);
-    echo "<p>Access denied. You must be an admin to view this page.</p>";
-    echo "<p>Signed in as: " . htmlspecialchars($currentUser) . "</p>";
+// ============================
+// AUTH CHECK
+// ============================
+
+// No user logged in?
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /login.php?mode=admin"); 
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Pull fresh user data from DB
+$stmt = $mysqli->prepare("SELECT user_id, username, is_admin FROM User WHERE user_id = ? LIMIT 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+
+// If no user found in DB → force logout
+if (!$user) {
+    session_destroy();
+    header("Location: /login.php?mode=admin");
+    exit;
+}
+
+// User is not an admin → block access
+if ((int)$user['is_admin'] !== 1) {
+    echo "<h2>Access Denied</h2>";
+    echo "<p>You are logged in as <strong>" . htmlspecialchars($user['username']) . "</strong>, but this account is not an admin.</p>";
+    echo "<p><a href='/index.php'>Return to site</a></p>";
     exit;
 }
 
@@ -224,7 +248,7 @@ $transaction_listings = fetch_all($mysqli, "SELECT * FROM `transaction_listing` 
   <div class="wrap">
     <header>
       <h1>Admin Dashboard</h1>
-      <p class="small">Signed in as <strong><?=h($currentUser)?></strong> — CSRF token: <code><?=h($_SESSION['csrf_token'])?></code></p>
+      <p class="small">Signed in as <strong><?=h($_SESSION['username'])?></strong> — CSRF token: <code><?=h($_SESSION['csrf_token'])?></code></p>
       <nav><a href="../" class="btn">Back to site</a></nav>
     </header>
 

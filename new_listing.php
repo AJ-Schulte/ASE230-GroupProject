@@ -1,29 +1,24 @@
 <?php
 session_start();
 
-// Require login using the session variables from login.php
 if (!isset($_SESSION['user_id'])) {
     die("You must be logged in to create a listing.");
 }
 
-// Build a $user array (optional, just for convenience)
 $user = [
     'user_id' => $_SESSION['user_id'],
     'username' => $_SESSION['username'],
     'is_admin' => $_SESSION['is_admin']
 ];
 
-// When form submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Collect form values
     $title = trim($_POST['listName']);
     $price = floatval($_POST['listPrice']);
     $desc = trim($_POST['listDesc']);
     $condition = trim($_POST['listCondition']);
     $imageUrl = trim($_POST['imageUrl']);
 
-    // Connect to DB
     try {
         $pdo = new PDO(
             "mysql:host=localhost;dbname=collectable_peddlers;charset=utf8mb4",
@@ -32,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
 
-        // Insert query
         $stmt = $pdo->prepare("
             INSERT INTO listing (user_id, title, description, price, condition, image_url, status, created_at)
             VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())
@@ -47,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imageUrl
         ]);
 
-        // Redirect to view the item
         $newId = $pdo->lastInsertId();
         header("Location: listing.php?id=" . $newId);
         exit;
@@ -57,43 +50,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Create New Listing</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/listing.css">
 </head>
 
 <body>
+    <div class="container">
 
-<h2>Create a New Listing</h2>
-<a href="index.php">Return to home</a>
+        <!-- Header (copied from index.php for visual consistency) -->
+        <header>
+            <a href="index.php" class="brand">
+                <div class="logo">MX</div>
+                <div>
+                    <div class="brand-name">Collectable Peddlers</div>
+                    <div class="brand-tag">Buy • Sell • Trade — Cards &amp; Collectibles</div>
+                </div>
+            </a>
 
-<form method="POST">
+            <nav>
+                <a href="search.php">Browse</a>
+                <a class="primary" href="new_listing.php">Sell</a>
+                <a href="userDash.php">Collections</a>
+            </nav>
 
-    <label>Listing Name:</label><br>
-    <input type="text" name="listName" required><br><br>
+            <div class="auth">
+                <span>Signed in as <strong><?= htmlspecialchars($user['username']) ?></strong></span>
 
-    <label>Listing Price:</label><br>
-    <input type="number" step="0.01" name="listPrice" required><br><br>
+                <?php if ($user['is_admin'] == 1): ?>
+                    <a class="btn btn-outline" href="admin/admin.php">Admin</a>
+                <?php endif; ?>
 
-    <label>Condition:</label><br>
-    <select name="listCondition" required>
-        <option value="New">New</option>
-        <option value="Like New">Like New</option>
-        <option value="Used">Used</option>
-    </select>
-    <br><br>
+                <a class="btn btn-outline" href="cart.php">Cart</a>
+                <a class="btn btn-outline" href="profile.php">Profile</a>
+                <a class="btn btn-outline" href="assets/php/logout.php">Sign out</a>
+            </div>
+        </header>
 
-    <label>Image URL:</label><br>
-    <input type="text" name="imageUrl" placeholder="images/item.jpg" required><br><br>
+        <main>
+            <a class="top-back" href="index.php">← Back to home</a>
 
-    <label>Description:</label><br>
-    <textarea name="listDesc" required></textarea><br><br>
+            <h2 class="page-title">Create a New Listing</h2>
 
-    <button type="submit">Create Listing</button>
+            <div class="form-card">
+                <form method="POST">
 
-</form>
+                    <div class="form-group">
+                        <label for="listName">Listing Name</label>
+                        <input type="text" id="listName" name="listName" required>
+                    </div>
 
+                    <div class="form-group">
+                        <label for="listPrice">Listing Price</label>
+                        <input type="number" step="0.01" id="listPrice" name="listPrice" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="listCondition">Condition</label>
+                        <select id="listCondition" name="listCondition" required>
+                            <option value="New">New</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Used">Used</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imageUrl">Image URL</label>
+                        <input type="text" id="imageUrl" name="imageUrl" placeholder="images/item.jpg" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="listDesc">Description</label>
+                        <textarea id="listDesc" name="listDesc" required></textarea>
+                    </div>
+
+                    <div class="actions">
+                        <a href="index.php" class="btn btn-outline">Cancel</a>
+                        <button class="btn btn-primary" type="submit">Create Listing</button>
+                    </div>
+
+                </form>
+            </div>
+        </main>
+
+        <footer>
+            <div>© <?= date('Y') ?> Collectable Peddlers — Built with PHP</div>
+        </footer>
+
+    </div>
 </body>
 </html>

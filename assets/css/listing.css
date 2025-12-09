@@ -1,0 +1,51 @@
+.form-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--radius);
+            border: 1px solid #eef2f6;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e6e9ef;
+            font-size: 1rem;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        h2.page-title {
+            text-align: center;
+            margin-bottom: 22px;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        .top-back {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--muted);
+            text-decoration: none;
+        }
+        .top-back:hover {
+            text-decoration: underline;
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }

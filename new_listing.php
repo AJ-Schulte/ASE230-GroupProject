@@ -2,7 +2,9 @@
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    die("You must be logged in to create a listing.");
+    $_SESSION['error'] = "You must be logged in to create a listing.";
+    header("Location: login.php");
+    exit;
 }
 
 $user = [
@@ -46,8 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
 
     } catch (PDOException $e) {
-        die("Database error: " . $e->getMessage());
-    }
+    $_SESSION['error'] = "Something went wrong creating your listing. Please try again.";
+    header("Location: error.php");
+    exit;
+}
+
 }
 ?>
 <!doctype html>

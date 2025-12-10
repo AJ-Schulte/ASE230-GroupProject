@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         $newId = $pdo->lastInsertId();
-        header("Location: listing.php?id=" . $newId);
+        header("Location: listingDetail.php?id=" . $newId);
         exit;
 
     } catch (PDOException $e) {
@@ -56,13 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Create New Listing</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/listing.css">
 </head>
 
 <body>
     <div class="container">
 
-        <!-- Header (copied from index.php for visual consistency) -->
         <header>
             <a href="index.php" class="brand">
                 <div class="logo">MX</div>
@@ -96,44 +94,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <h2 class="page-title">Create a New Listing</h2>
 
-            <div class="form-card">
-                <form method="POST">
+            <!-- Form wrapped as a card in a grid -->
+            <div class="grid">
+                <article class="card">
+                    <form method="POST">
 
-                    <div class="form-group">
                         <label for="listName">Listing Name</label>
                         <input type="text" id="listName" name="listName" required>
-                    </div>
 
-                    <div class="form-group">
                         <label for="listPrice">Listing Price</label>
                         <input type="number" step="0.01" id="listPrice" name="listPrice" required>
-                    </div>
 
-                    <div class="form-group">
                         <label for="listCondition">Condition</label>
                         <select id="listCondition" name="listCondition" required>
                             <option value="New">New</option>
                             <option value="Like New">Like New</option>
                             <option value="Used">Used</option>
                         </select>
-                    </div>
 
-                    <div class="form-group">
                         <label for="imageUrl">Image URL</label>
                         <input type="text" id="imageUrl" name="imageUrl" placeholder="images/item.jpg" required>
-                    </div>
 
-                    <div class="form-group">
                         <label for="listDesc">Description</label>
                         <textarea id="listDesc" name="listDesc" required></textarea>
-                    </div>
 
-                    <div class="actions">
-                        <a href="index.php" class="btn btn-outline">Cancel</a>
-                        <button class="btn btn-primary" type="submit">Create Listing</button>
-                    </div>
+                        <div class="card-footer">
+                            <a href="index.php" class="btn btn-outline">Cancel</a>
+                            <button class="btn btn-primary" type="submit">Create Listing</button>
+                        </div>
 
-                </form>
+                    </form>
+                </article>
             </div>
         </main>
 
@@ -144,3 +135,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+<?php

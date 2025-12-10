@@ -5,8 +5,8 @@ $username = $_SESSION['username'] ?? null;
 $is_admin = $_SESSION['is_admin'] ?? 0;
 $user_id = $_SESSION['user_id'] ?? null;
 
-function format_price($cents) {
-    return '$' . number_format($cents / 100, 2);
+function format_price($price) {
+    return '$' . number_format($price, 2);
 }
 function truncate($text, $len = 120) {
     return mb_strlen($text) <= $len ? $text : mb_substr($text, 0, $len - 1) . '…';
